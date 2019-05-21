@@ -3,55 +3,61 @@
 
 #include "../header/AhoCorasik.h"
 
-TEST(AhoCorasik, test) {
-  bohr.clear();
-  pattern.clear();
+struct Aho_Corasik_test_case {
+  Aho_Corasik_test_case(std::string&& str, std::vector<std::string>&& patterns, std::vector<std::string>&& entries_array = {}):
+      str(str), patterns(patterns), entries_array(entries_array) {}
 
-  Bohr_v v(0, 0);
-  bohr.push_back(v);
+  std::string str;
+  std::vector<std::string> patterns;
+  std::vector<std::string> entries_array;
+};
 
-  add_to_bohr("ATAAC");
-  add_to_bohr("AAC");
-  add_to_bohr("AC");
-  add_to_bohr("NAF");
-
-  std::vector<std::string> result = find("ACGATAACCNAAG");
-  std::string str_result = "";
-  for (size_t i = 0; i != result.size(); ++i) {
-    str_result += result[i];
-    if (i != result.size() - 1) {
-      str_result += " ";
-    }
+class Aho_Corasik_test: public testing::TestWithParam<Aho_Corasik_test_case> {
+public:
+  void SetUp() override {
+    Bohr_v v(0, 0);
+    bohr.push_back(v);
   }
 
-  ASSERT_EQ(str_result, "1 3 4 1 6 2 7 3");
-}
+  void TearDown() override {
+    bohr.clear();
+    pattern.clear();
+  }
+};
 
-TEST(AhoCorasik, test_prefix) {
-  bohr.clear();
-  pattern.clear();
+TEST_P(Aho_Corasik_test, test) {
+  Aho_Corasik_test_case param = GetParam();
 
-  Bohr_v v(0, 0);
-  bohr.push_back(v);
-
-  add_to_bohr("ANACTAN");
-  add_to_bohr("ANA");
-  add_to_bohr("ANACTG");
-  add_to_bohr("NA");
-  add_to_bohr("TA");
-  add_to_bohr("ANNAGA");
-
-  std::vector<std::string> result = find("ANACTANNAGAAACNG");
-  std::string str_result = "";
-  for (size_t i = 0; i != result.size(); ++i) {
-    str_result += result[i];
-    if (i != result.size() - 1) {
-      str_result += " ";
-    }
+  for (auto const& pattern : param.patterns) {
+    add_to_bohr(pattern);
   }
 
-  ASSERT_EQ(str_result, "1 2 2 4 5 5 1 1 8 4 6 6");
+  std::vector<std::string> result = find(param.str);
+  ASSERT_THAT(result, testing::ContainerEq(param.entries_array));
 }
+
+INSTANTIATE_TEST_CASE_P(success, Aho_Corasik_test, ::testing::Values(
+    Aho_Corasik_test_case( // random
+        "ACGATAACCNAAG",
+        {"ATAAC", "AAC", "AC", "NAF"},
+        {"1 3", "4 1", "6 2", "7 3"}
+    ),
+    Aho_Corasik_test_case( // random
+        "ANACTANNAGAAACNG",
+        {"ANACTAN", "ANA", "ANACTG", "NA", "TA", "ANNAGA"},
+        {"1 2", "2 4", "5 5", "1 1", "8 4", "6 6"}
+    ),
+    Aho_Corasik_test_case( // only one "good" pattern
+        "ANCGAD",
+        {"GAD", "TAC", "NTGC"},
+        {"4 1"}
+    ),
+    Aho_Corasik_test_case( // only one "good" pattern
+        "AAAGACA",
+        {"A"},
+        {"1 1", "2 1", "3 1", "5 1", "7 1"}
+    )
+));
 
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);

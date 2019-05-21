@@ -9,12 +9,11 @@ int main() {
   std::cin >> text;
   std::cin >> keyword;
   std::cin >> j;
-  std::stringstream str_stream(keyword);
   std::vector<int> cnt(text.size(), 0);
-  std::vector<int> part_len = patterns(str_stream, j);
+  std::vector<int> part_len = patterns(keyword, j);
   find(text, cnt, part_len);
 
-  std::vector<std::string> result = out_2(cnt, text.size());
+  std::vector<std::string> result = out_2(cnt);
   for (auto i : result) {
     std::cout << i << std::endl;
   }

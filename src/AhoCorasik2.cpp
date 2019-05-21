@@ -108,14 +108,15 @@ void out(int node_number, int i, std::vector<int>& cnt, std::vector<int> const& 
   }
 }
 
-std::vector<int> patterns(std::stringstream& string_pattern, char joker) {
+std::vector<int> patterns(std::string& pattern, char joker) {
   std::vector<int> len;
   int part_len = 0;
   std::string part_str;
 
+  std::stringstream stream(pattern);
 
   // Добавляем в буффер первую половину шаблона (перед джокером), затем вторую
-  while (getline(string_pattern, part_str, joker)) {
+  while (getline(stream, part_str, joker)) {
     if (part_str.size() > 0) {
       part_len += part_str.size();
       len.push_back(part_len);
@@ -127,10 +128,10 @@ std::vector<int> patterns(std::stringstream& string_pattern, char joker) {
   return len;
 }
 
-std::vector<std::string> out_2(const std::vector<int>& cnt, int t_size) {
+std::vector<std::string> out_2(const std::vector<int>& cnt) {
   std::vector<std::string> result;
 
-  for (int i = 0; i < t_size; i++) {
+  for (int i = 0; i < cnt.size(); i++) {
     if (cnt[i] == pattern.size()) {
       std::stringstream stream;
       stream << i + 1;

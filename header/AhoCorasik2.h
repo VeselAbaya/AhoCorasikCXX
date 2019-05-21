@@ -28,9 +28,9 @@ extern std::vector<Bohr_v> bohr;
 extern std::vector<std::string> pattern;
 
 void add_to_bohr(const std::string &str);
-std::vector<std::string> out_2(const std::vector<int>& cnt, int t_size);
+std::vector<std::string> out_2(const std::vector<int>& cnt);
 
-std::vector<int> patterns(std::stringstream& string_pattern, char joker);
+std::vector<int> patterns(std::string& pattern, char joker);
 
 std::vector<std::string> find(const std::string &str, std::vector<int>& cnt, const std::vector<int>& part_len);
 
