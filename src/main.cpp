@@ -3,12 +3,13 @@
 
 int main () {
   int n;
-  std::string text, keyword;
-  std::cin >> text;
-  std::cin >> n;
-  std::vector<std::string> patterns(n);
+  std::wstring text, keyword;
+
+  std::wcin >> text;
+  std::wcin >> n;
+  std::vector<std::wstring> patterns(n);
   for (int i = 0; i < n; i++) {
-    std::cin >> patterns[i];
+    std::wcin >> patterns[i];
   }
 
   std::vector<std::pair<int, int>> result = Aho_Corasik::find(text, patterns);

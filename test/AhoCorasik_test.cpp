@@ -4,11 +4,11 @@
 #include "../header/AhoCorasik.h"
 
 struct Aho_Corasik_test_case {
-  Aho_Corasik_test_case(std::string&& str, std::vector<std::string>&& patterns, std::vector<std::pair<int,int>>&& entries_array = {}):
+  Aho_Corasik_test_case(std::wstring&& str, std::vector<std::wstring>&& patterns, std::vector<std::pair<int,int>>&& entries_array = {}):
       str(str), patterns(patterns), entries_array(entries_array) {}
 
-  std::string str;
-  std::vector<std::string> patterns;
+  std::wstring str;
+  std::vector<std::wstring> patterns;
   std::vector<std::pair<int, int>> entries_array;
 };
 
@@ -26,24 +26,29 @@ TEST_P(Aho_Corasik_test, test) {
 
 INSTANTIATE_TEST_CASE_P(success, Aho_Corasik_test, ::testing::Values(
     Aho_Corasik_test_case( // random
-        "ACGATAACCNAAG",
-        {"ATAAC", "AAC", "AC", "NAF"},
+        L"ACGATAACCNAAG",
+        {L"ATAAC", L"AAC", L"AC", L"NAF"},
         {{1, 3}, {4, 1}, {6, 2}, {7, 3}}
     ),
     Aho_Corasik_test_case( // random
-        "ANACTANNAGAAACNG",
-        {"ANACTAN", "ANA", "ANACTG", "NA", "TA", "ANNAGA"},
+        L"ANACTANNAGAAACNG",
+        {L"ANACTAN", L"ANA", L"ANACTG", L"NA", L"TA", L"ANNAGA"},
         {{1, 2}, {2, 4}, {5, 5}, {1, 1}, {8, 4}, {6, 6}}
     ),
     Aho_Corasik_test_case( // only one "good" pattern
-        "ANCGAD",
-        {"GAD", "TAC", "NTGC"},
+        L"ANCGAD",
+        {L"GAD", L"TAC", L"NTGC"},
         {{4, 1}}
     ),
     Aho_Corasik_test_case( // only one "good" pattern
-        "AAAGACA",
-        {"A"},
+        L"AAAGACA",
+        {L"A"},
         {{1, 1}, {2, 1}, {3, 1}, {5, 1}, {7, 1}}
+    ),
+    Aho_Corasik_test_case( // only one "good" pattern
+        L"ФПЫАФЫВВ",
+        {L"Ф", L"ФЫВ", L"ВВ"},
+        {{1, 1}, {5, 1}, {5, 2}, {7, 3}}
     )
 ));
 

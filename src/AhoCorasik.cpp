@@ -1,5 +1,36 @@
 #include "../header/AhoCorasik.h"
 
+int stepikCharCode(wchar_t ch) {
+  int code;
+  switch(ch) {
+    case L'A':
+    case L'Ф':
+      code = 0;
+    break;
+    case L'C':
+    case L'Ы':
+      code = 1;
+    break;
+    case L'G':
+    case L'В':
+      code = 2;
+    break;
+    case L'T':
+    case L'А':
+      code = 3;
+    break;
+    case L'N':
+    case L'П':
+      code = 4;
+    break;
+    default:
+      code = 5;
+    break;
+  }
+
+  return code;
+}
+
 Aho_Corasik::Bohr::Bohr_node::Bohr_node(int parent, char symbol) {
   for (int i = 0; i < MAXSIZE; i++) {
     next_node[i] = -1;
@@ -17,40 +48,20 @@ Aho_Corasik::Bohr::Bohr_node::Bohr_node(int parent, char symbol) {
   this->symbol = symbol;
 }
 
-Aho_Corasik::Bohr::Bohr(std::vector<std::string> const& patterns) {
+Aho_Corasik::Bohr::Bohr(std::vector<std::wstring> const& patterns) {
   Bohr_node v(0, 0);
   this->nodes.push_back(v);
 
-  for(std::string const& pattern : patterns) {
+  for(std::wstring const& pattern : patterns) {
     this->add(pattern);
   }
 }
 
 // Добавление образца в бор
-void Aho_Corasik::Bohr::add(const std::string &str) {
+void Aho_Corasik::Bohr::add(const std::wstring &str) {
   int parent_number = 0;
   for (int i = 0; i < str.length(); i++) {
-    int ch;
-    switch(str[i]) {
-      case 'A':
-        ch = 0;
-        break;
-      case 'C':
-        ch = 1;
-        break;
-      case 'G':
-        ch = 2;
-        break;
-      case 'T':
-        ch = 3;
-        break;
-      case 'N':
-        ch = 4;
-        break;
-      default:
-        ch = 5;
-        break;
-    }
+    int ch = stepikCharCode(str[i]);
 
     // нет ребра
     if (this->nodes[parent_number].next_node[ch] == -1)	{
@@ -99,7 +110,7 @@ int Aho_Corasik::Bohr::getAutoMove(int node_number, int ch) {
   return nodes[node_number].autoMove[ch];
 }
 
-Aho_Corasik::Aho_Corasik(std::string const& str, std::vector<std::string> const &patterns): str(str) {
+Aho_Corasik::Aho_Corasik(std::wstring const& str, std::vector<std::wstring> const &patterns): str(str) {
   bohr = Bohr(patterns);
 }
 
@@ -107,34 +118,14 @@ std::vector<std::pair<int, int>> Aho_Corasik::_find() {
   int node_number = 0;
   std::vector<std::pair<int, int>> result;
   for(int i = 0; i < str.length(); i++) {
-    int ch;
-    switch(str[i]) {
-      case 'A':
-        ch = 0;
-        break;
-      case 'C':
-        ch = 1;
-        break;
-      case 'G':
-        ch = 2;
-        break;
-      case 'T':
-        ch = 3;
-        break;
-      case 'N':
-        ch = 4;
-        break;
-      default:
-        ch = 5;
-        break;
-    }
+    int ch = stepikCharCode(str[i]);
 
     node_number = bohr.getAutoMove(node_number, ch);
 
     for(int u = node_number; u != 0; u = bohr.getSuff(u)) {
       if (bohr.nodes[u].flag) {
         result.emplace_back(
-            std::make_pair(i+1 - bohr.patterns[bohr.nodes[u].patternNum].length() + 1, bohr.nodes[u].patternNum + 1)
+          std::make_pair(i+1 - bohr.patterns[bohr.nodes[u].patternNum].length() + 1, bohr.nodes[u].patternNum + 1)
         );
       }
     }
@@ -143,6 +134,6 @@ std::vector<std::pair<int, int>> Aho_Corasik::_find() {
   return result;
 }
 
-std::vector<std::pair<int, int>> Aho_Corasik::find(std::string const& str, std::vector<std::string> const& patterns) {
+std::vector<std::pair<int, int>> Aho_Corasik::find(std::wstring const& str, std::vector<std::wstring> const& patterns) {
   return Aho_Corasik(str, patterns)._find();
 }

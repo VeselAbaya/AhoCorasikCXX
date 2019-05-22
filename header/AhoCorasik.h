@@ -16,6 +16,15 @@ public:
   public:
     friend Aho_Corasik;
 
+    Bohr() {};
+    Bohr(std::vector<std::wstring> const& patterns);
+
+    void add(std::wstring const& str);
+
+    int getAutoMove(int node_number, int ch);
+    int getSuff(int node_number);
+
+  private:
     struct Bohr_node {
       int next_node[MAXSIZE]; // массив, где next_node[i] - номер вершины, в которую мы переходим по символу с номером i в алфавите
       int patternNum;         // номер строки-образца, обозначающего вершиной next_node[i]
@@ -29,28 +38,19 @@ public:
       Bohr_node(int parent, char symbol);
     };
 
-    Bohr() {};
-    Bohr(std::vector<std::string> const& patterns);
-
-    void add(std::string const& str);
-
-    int getAutoMove(int node_number, int ch);
-    int getSuff(int node_number);
-
-  private:
     std::vector<Bohr_node> nodes;
-    std::vector<std::string> patterns;
+    std::vector<std::wstring> patterns;
   };
 
-  Aho_Corasik(std::string const& str, std::vector<std::string> const& patterns);
+  Aho_Corasik(std::wstring const& str, std::vector<std::wstring> const& patterns);
 
-  static std::vector<std::pair<int, int>> find(std::string const& str, std::vector<std::string> const& patterns);
+  static std::vector<std::pair<int, int>> find(std::wstring const& str, std::vector<std::wstring> const& patterns);
 
 private:
   std::vector<std::pair<int, int>> _find();
 
   Bohr bohr;
-  std::string str;
+  std::wstring str;
 };
 
 #endif //AHOCORASIK_AHOCORASIK_H
