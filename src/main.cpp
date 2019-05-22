@@ -2,21 +2,18 @@
 #include "../header/AhoCorasik.h"
 
 int main () {
-  Bohr_v v(0, 0);
-  bohr.push_back(v);
-
   int n;
   std::string text, keyword;
   std::cin >> text;
   std::cin >> n;
+  std::vector<std::string> patterns(n);
   for (int i = 0; i < n; i++) {
-    std::cin >> keyword;
-    add_to_bohr(keyword);
+    std::cin >> patterns[i];
   }
 
-  std::vector<std::string> result = find(text);
+  std::vector<std::pair<int, int>> result = Aho_Corasik::find(text, patterns);
 
-  for (auto str: result) {
-    std::cout << str << std::endl;
+  for (auto p: result) {
+    std::cout << p.first << ' ' << p.second << std::endl;
   }
 }

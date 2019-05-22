@@ -1,14 +1,11 @@
 #include "../header/AhoCorasik.h"
 
-std::vector<Bohr_v> bohr;
-std::vector<std::string> pattern;
-
-Bohr_v::Bohr_v(int parent, char symbol) {
+Aho_Corasik::Bohr::Bohr_node::Bohr_node(int parent, char symbol) {
   for (int i = 0; i < MAXSIZE; i++) {
     next_node[i] = -1;
   }
 
-  patternNums = 0;
+  this->patternNum = 0;
   flag = false;
   suffLink = -1;
 
@@ -20,8 +17,17 @@ Bohr_v::Bohr_v(int parent, char symbol) {
   this->symbol = symbol;
 }
 
+Aho_Corasik::Bohr::Bohr(std::vector<std::string> const& patterns) {
+  Bohr_node v(0, 0);
+  this->nodes.push_back(v);
+
+  for(std::string const& pattern : patterns) {
+    this->add(pattern);
+  }
+}
+
 // Добавление образца в бор
-void add_to_bohr(const std::string &str) {
+void Aho_Corasik::Bohr::add(const std::string &str) {
   int parent_number = 0;
   for (int i = 0; i < str.length(); i++) {
     int ch;
@@ -47,70 +53,59 @@ void add_to_bohr(const std::string &str) {
     }
 
     // нет ребра
-    if (bohr[parent_number].next_node[ch] == -1)	{
-      Bohr_v node(parent_number, ch);
-      bohr.push_back(node);
-      bohr[parent_number].next_node[ch] = bohr.size() - 1;
+    if (this->nodes[parent_number].next_node[ch] == -1)	{
+      Bohr_node node(parent_number, ch);
+      this->nodes.push_back(node);
+      this->nodes[parent_number].next_node[ch] = this->nodes.size() - 1;
     }
 
-    parent_number = bohr[parent_number].next_node[ch];
+    parent_number = this->nodes[parent_number].next_node[ch];
   }
 
-  bohr[parent_number].flag = true;
-  pattern.push_back(str);
-  bohr[parent_number].patternNums = pattern.size() - 1;
+  this->nodes[parent_number].flag = true;
+  this->patterns.push_back(str);
+  this->nodes[parent_number].patternNum = this->patterns.size() - 1;
 }
-
-int getAutoMove(int node_number, int ch);
 
 // Получаем суффиксную ссылку
-int getSuff(int node_number) {
-  if (bohr[node_number].suffLink == -1) {
-    if (node_number == 0 || bohr[node_number].parent == 0) {
-      bohr[node_number].suffLink = 0;
+int Aho_Corasik::Bohr::getSuff(int node_number) {
+  if (nodes[node_number].suffLink == -1) {
+    if (node_number == 0 || nodes[node_number].parent == 0) {
+      nodes[node_number].suffLink = 0;
     }
     else {
-      bohr[node_number].suffLink = getAutoMove(getSuff(bohr[node_number].parent), bohr[node_number].symbol);
+      nodes[node_number].suffLink = getAutoMove(getSuff(nodes[node_number].parent), nodes[node_number].symbol);
     }
   }
 
-  return bohr[node_number].suffLink;
+  return nodes[node_number].suffLink;
 }
 
-int getAutoMove(int node_number, int ch) {
-  if (bohr[node_number].autoMove[ch] == -1) {
-    if (bohr[node_number].next_node[ch] != -1) {
-      bohr[node_number].autoMove[ch] = bohr[node_number].next_node[ch];
+int Aho_Corasik::Bohr::getAutoMove(int node_number, int ch) {
+  if (nodes[node_number].autoMove[ch] == -1) {
+    if (nodes[node_number].next_node[ch] != -1) {
+      nodes[node_number].autoMove[ch] = nodes[node_number].next_node[ch];
     }
     else {
       if (node_number == 0) { // if root there no sufflink
-        bohr[node_number].autoMove[ch] = 0;
+        nodes[node_number].autoMove[ch] = 0;
       }
       else {
-        bohr[node_number].autoMove[ch] = getAutoMove(getSuff(node_number), ch);
+        nodes[node_number].autoMove[ch] = getAutoMove(getSuff(node_number), ch);
       }
     }
   }
 
-  return bohr[node_number].autoMove[ch];
+  return nodes[node_number].autoMove[ch];
 }
 
-
-void out(int node_number, int i, std::vector<std::string>& result) {
-  for(int u = node_number; u != 0; u = getSuff(u)) {
-    if (bohr[u].flag) {
-      std::stringstream stream;
-      stream << i - pattern[bohr[u].patternNums].length() + 1 << " "
-             << bohr[u].patternNums + 1;
-
-      result.push_back(stream.str());
-    }
-  }
+Aho_Corasik::Aho_Corasik(std::string const& str, std::vector<std::string> const &patterns): str(str) {
+  bohr = Bohr(patterns);
 }
 
-std::vector<std::string> find(const std::string &str) {
-  int borh_node_number = 0;
-  std::vector<std::string> result;
+std::vector<std::pair<int, int>> Aho_Corasik::_find() {
+  int node_number = 0;
+  std::vector<std::pair<int, int>> result;
   for(int i = 0; i < str.length(); i++) {
     int ch;
     switch(str[i]) {
@@ -134,9 +129,20 @@ std::vector<std::string> find(const std::string &str) {
         break;
     }
 
-    borh_node_number = getAutoMove(borh_node_number, ch);
-    out(borh_node_number, i + 1, result);
+    node_number = bohr.getAutoMove(node_number, ch);
+
+    for(int u = node_number; u != 0; u = bohr.getSuff(u)) {
+      if (bohr.nodes[u].flag) {
+        result.emplace_back(
+            std::make_pair(i+1 - bohr.patterns[bohr.nodes[u].patternNum].length() + 1, bohr.nodes[u].patternNum + 1)
+        );
+      }
+    }
   }
 
   return result;
+}
+
+std::vector<std::pair<int, int>> Aho_Corasik::find(std::string const& str, std::vector<std::string> const& patterns) {
+  return Aho_Corasik(str, patterns)._find();
 }

@@ -10,25 +10,47 @@
 
 #define MAXSIZE 6
 
-struct Bohr_v {
-  int next_node[MAXSIZE]; // массив, где next_node[i] - номер вершины, в которую мы переходим по символу с номером i в алфавите
-  int patternNums;         // номер строки-образца, обозначающего вершиной next_node[i]
-  bool flag;              // бит, указывающий, явл-я ли вершина конечной
-  int suffLink;           // суффиксная ссылка
-  int autoMove[MAXSIZE];  // запоминание перехода автомата
-  int parent;             // вершина - родитель
-  char symbol;            // символ на ребре от parent к этой вершине
+class Aho_Corasik {
+public:
+  class Bohr {
+  public:
+    friend Aho_Corasik;
 
-  Bohr_v() {}
+    struct Bohr_node {
+      int next_node[MAXSIZE]; // массив, где next_node[i] - номер вершины, в которую мы переходим по символу с номером i в алфавите
+      int patternNum;         // номер строки-образца, обозначающего вершиной next_node[i]
+      bool flag;              // бит, указывающий, явл-я ли вершина конечной
+      int suffLink;           // суффиксная ссылка
+      int autoMove[MAXSIZE];  // запоминание перехода автомата
+      int parent;             // вершина - родитель
+      char symbol;            // символ на ребре от parent к этой вершине
 
-  Bohr_v(int parent, char symbol);
+      Bohr_node() {};
+      Bohr_node(int parent, char symbol);
+    };
+
+    Bohr() {};
+    Bohr(std::vector<std::string> const& patterns);
+
+    void add(std::string const& str);
+
+    int getAutoMove(int node_number, int ch);
+    int getSuff(int node_number);
+
+  private:
+    std::vector<Bohr_node> nodes;
+    std::vector<std::string> patterns;
+  };
+
+  Aho_Corasik(std::string const& str, std::vector<std::string> const& patterns);
+
+  static std::vector<std::pair<int, int>> find(std::string const& str, std::vector<std::string> const& patterns);
+
+private:
+  std::vector<std::pair<int, int>> _find();
+
+  Bohr bohr;
+  std::string str;
 };
-
-extern std::vector<Bohr_v> bohr;
-extern std::vector<std::string> pattern;
-
-void add_to_bohr(const std::string &str);
-
-std::vector<std::string> find(const std::string &str);
 
 #endif //AHOCORASIK_AHOCORASIK_H
