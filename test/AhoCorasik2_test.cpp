@@ -56,6 +56,11 @@ INSTANTIATE_TEST_CASE_P(success, Aho_Corasik2_test, ::testing::Values(
         "AAAAA",
         "$",
         {"1", "2", "3", "4", "5"}
+    ),
+    Aho_Corasik2_test_case( // only j
+        "ATATGT",
+        "AT$T",
+        {"1", "3"}
     )
 ));
 
